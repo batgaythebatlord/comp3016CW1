@@ -13,15 +13,35 @@ string draw(bool stuff);
 void startMaze(bool(&theGrid)[xDist][yDist][4], bool(&theCells)[xDist][yDist]);
 void carveMaze(bool(&theGrid)[xDist][yDist][4], bool(&theCells)[xDist][yDist], int xValue, int yValue);
 static bool isEdge(bool(&theGrid)[xDist][yDist][4], int xValue, int yValue, int wall);
+static bool isVisited(bool(&theCells)[xDist][yDist], int xValue, int yValue, int wall);
 static void huntPhase(bool(&theGrid)[xDist][yDist][4], bool(&theCells)[xDist][yDist]);
-
+int globalCount = 0;
 
 int main()
 {
     bool grid[yDist][xDist][4];
-    bool cellsNotVisited[yDist][xDist];
+    bool cellsVisited[yDist][xDist];
 
-    startMaze(grid, cellsNotVisited);
+    for (int i = 0; i < sizeof(grid) / sizeof(grid[0]); i++)
+    {
+        for (int j = 0; j < sizeof(grid[0]) / sizeof(grid[0][0]); j++)
+        {
+            for (int k = 0; k < 4; k++)
+            {
+                grid[i][j][k] = false;
+            }
+        }
+    }
+
+    for (int i = 0; i < sizeof(cellsVisited) / sizeof(cellsVisited[0]); i++)
+    {
+        for (int j = 0; j < sizeof(cellsVisited[0]) / sizeof(cellsVisited[0][0]); j++)
+        {
+            cellsVisited[i][j] = false;
+        }
+    }
+
+    startMaze(grid, cellsVisited);
 }
 
 static void drawGrid(bool (&theGrid)[xDist][yDist][4])
@@ -54,18 +74,17 @@ static void drawGrid(bool (&theGrid)[xDist][yDist][4])
     cout << "\n";
 }
 
-
 string draw(bool stuff)
 {
-    if (!stuff) return "    ";
-    return "||||";
+    if (stuff) return "    ";
+    return "|!!|";
 }
 
 void startMaze(bool(&theGrid)[xDist][yDist][4], bool(&theCells)[xDist][yDist])
 {
     int yValue = rand() % sizeof(theGrid) / sizeof(theGrid[0]);
     int xValue = rand() % sizeof(theGrid[0]) / sizeof(theGrid[0][0]);
-    theCells[yValue][xValue] = false;
+    theCells[yValue][xValue] = true;
 
     cout << "started!\n";
 
@@ -74,6 +93,7 @@ void startMaze(bool(&theGrid)[xDist][yDist][4], bool(&theCells)[xDist][yDist])
 
 void carveMaze(bool(&theGrid)[xDist][yDist][4], bool(&theCells)[xDist][yDist], int xValue, int yValue)
 {
+    cout << "carve maze\n";
 
     bool wallcheck[4];
     int count = 0;
@@ -83,14 +103,14 @@ void carveMaze(bool(&theGrid)[xDist][yDist][4], bool(&theCells)[xDist][yDist], i
     {
         if (isEdge(theGrid, xValue, yValue, wall) == false)
         {
-            if (isUnvisited(theCells, xValue, yValue, wall) == true)
+            if (isVisited(theCells, xValue, yValue, wall) == false)
             {
-                wallcheck[wall] = true;
+                wallcheck[wall] = false;
                 count++;
             }
             else
             {
-                wallcheck[wall] = false;
+                wallcheck[wall] = true;
             }
         }
         else
@@ -111,8 +131,6 @@ void carveMaze(bool(&theGrid)[xDist][yDist][4], bool(&theCells)[xDist][yDist], i
         {
             wallPicked = rand() % 4;
         } while (wallcheck[wallPicked] == true);
-
-        cout << wallPicked + " wall picked";
 
         theGrid[yValue][xValue][wallPicked] = true;
         switch (wallPicked)
@@ -137,14 +155,14 @@ void carveMaze(bool(&theGrid)[xDist][yDist][4], bool(&theCells)[xDist][yDist], i
             break;
         }
 
-        theCells[yValue][xValue] = false;
+        theCells[yValue][xValue] = true;
         drawGrid(theGrid);
 
 
         carveMaze(theGrid, theCells, xValue, yValue);
     }
 }
-static bool isEdge(bool(&theGrid)[xDist][yDist][4], int xValue, int yValue, int wall)
+bool isEdge(bool(&theGrid)[xDist][yDist][4], int xValue, int yValue, int wall)
 {
     if (wall == 0 && yValue == 0) return true;
     if (wall == 1 && xValue == 0) return true;
@@ -152,7 +170,7 @@ static bool isEdge(bool(&theGrid)[xDist][yDist][4], int xValue, int yValue, int 
     if (wall == 3 && xValue == sizeof(theGrid[0]) / sizeof(theGrid[0][0]) - 1) return true;
     return false;
 }
-static bool isUnvisited(bool(&theCells)[xDist][yDist], int xValue, int yValue, int wall)
+bool isVisited(bool(&theCells)[xDist][yDist], int xValue, int yValue, int wall)
 {
     if (wall == 0) return theCells[yValue - 1][xValue];
     if (wall == 1) return theCells[yValue][xValue - 1];
@@ -163,6 +181,12 @@ static bool isUnvisited(bool(&theCells)[xDist][yDist], int xValue, int yValue, i
 
 static void huntPhase(bool(&theGrid)[xDist][yDist][4], bool(&theCells)[xDist][yDist])
 {
+    cout << "hunt phase\n";
+    globalCount++;
+    if (globalCount > 50)
+    {
+        void abort(void);
+    }
 
     int xValue = 0;
     int yValue = 0;
@@ -177,7 +201,7 @@ static void huntPhase(bool(&theGrid)[xDist][yDist][4], bool(&theCells)[xDist][yD
             {
                 if (isEdge(theGrid, xValue, yValue, wall) == false)
                 {
-                    if (isUnvisited(theCells, xValue, yValue, wall) == true)
+                    if (isVisited(theCells, xValue, yValue, wall) == true)
                     {
                         found = true;
                     }
