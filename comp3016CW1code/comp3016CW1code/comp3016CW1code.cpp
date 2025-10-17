@@ -15,12 +15,13 @@ void carveMaze(bool(&theGrid)[xDist][yDist][4], bool(&theCells)[xDist][yDist], i
 static bool isEdge(bool(&theGrid)[xDist][yDist][4], int xValue, int yValue, int wall);
 static bool isVisited(bool(&theCells)[xDist][yDist], int xValue, int yValue, int wall);
 static void huntPhase(bool(&theGrid)[xDist][yDist][4], bool(&theCells)[xDist][yDist]);
-int globalCount = 0;
 
 int main()
 {
     bool grid[yDist][xDist][4];
     bool cellsVisited[yDist][xDist];
+
+    srand(time(NULL));
 
     for (int i = 0; i < sizeof(grid) / sizeof(grid[0]); i++)
     {
@@ -42,6 +43,7 @@ int main()
     }
 
     startMaze(grid, cellsVisited);
+    //drawGrid(grid);
 }
 
 static void drawGrid(bool (&theGrid)[xDist][yDist][4])
@@ -50,28 +52,28 @@ static void drawGrid(bool (&theGrid)[xDist][yDist][4])
     {
         for (int j = 0; j < sizeof(theGrid[0]) / sizeof(theGrid[0][0]); j++)
         {
-            cout << "||||" + draw(theGrid[i][j][0]) + "||||";
+            std::cout << "||||" + draw(theGrid[i][j][0]) + "||||";
         }
 
-        cout << "\n";
+        std::cout << "\n";
 
         for (int j = 0; j < sizeof(theGrid[0]) / sizeof(theGrid[0][0]); j++)
         {
-            cout << draw(theGrid[i][j][1]) + "    " + draw(theGrid[i][j][3]);
+            std::cout << draw(theGrid[i][j][1]) + "    " + draw(theGrid[i][j][3]);
             // the numbers go ANTICLOCKWISE!!!!!!
         }
 
-        cout << "\n";
+        std::cout << "\n";
 
         for (int j = 0; j < sizeof(theGrid[0]) / sizeof(theGrid[0][0]); j++)
         {
-            cout << "||||" + draw(theGrid[i][j][2]) + "||||";
+            std::cout << "||||" + draw(theGrid[i][j][2]) + "||||";
         }
 
-        cout << "\n";
+        std::cout << "\n";
     }
 
-    cout << "\n";
+    std::cout << "\n";
 }
 
 string draw(bool stuff)
@@ -86,14 +88,15 @@ void startMaze(bool(&theGrid)[xDist][yDist][4], bool(&theCells)[xDist][yDist])
     int xValue = rand() % sizeof(theGrid[0]) / sizeof(theGrid[0][0]);
     theCells[yValue][xValue] = true;
 
-    cout << "started!\n";
+    std::cout << "started!\n";
+    std::cout << xValue << " " << yValue << "\n";
 
     carveMaze(theGrid, theCells, xValue, yValue);
 }
 
 void carveMaze(bool(&theGrid)[xDist][yDist][4], bool(&theCells)[xDist][yDist], int xValue, int yValue)
 {
-    cout << "carve maze\n";
+    std::cout << "carve maze\n";
 
     bool wallcheck[4];
     int count = 0;
@@ -176,17 +179,12 @@ bool isVisited(bool(&theCells)[xDist][yDist], int xValue, int yValue, int wall)
     if (wall == 1) return theCells[yValue][xValue - 1];
     if (wall == 2) return theCells[yValue + 1][xValue];
     if (wall == 3) return theCells[yValue][xValue + 1];
-    return true;
+    return false;
 }
 
 static void huntPhase(bool(&theGrid)[xDist][yDist][4], bool(&theCells)[xDist][yDist])
 {
-    cout << "hunt phase\n";
-    globalCount++;
-    if (globalCount > 50)
-    {
-        void abort(void);
-    }
+    std::cout << "hunt phase\n";
 
     int xValue = 0;
     int yValue = 0;
@@ -195,15 +193,16 @@ static void huntPhase(bool(&theGrid)[xDist][yDist][4], bool(&theCells)[xDist][yD
 
     do
     {
-        if (theCells[yValue][xValue] == false)
+        if (theCells[yValue][xValue] == true)
         {
             for (int wall = 0; wall < 4; wall++)
             {
                 if (isEdge(theGrid, xValue, yValue, wall) == false)
                 {
-                    if (isVisited(theCells, xValue, yValue, wall) == true)
+                    if (isVisited(theCells, xValue, yValue, wall) == false)
                     {
                         found = true;
+                        std::cout << xValue << " " << yValue << "\n";
                     }
                 }
             }
@@ -224,13 +223,13 @@ static void huntPhase(bool(&theGrid)[xDist][yDist][4], bool(&theCells)[xDist][yD
         count++;
     } while (found == false && count <= sizeof(theGrid[0]) / sizeof(theGrid[0][0]) * sizeof(theGrid) / sizeof(theGrid[0]));
 
+    
     if (found) carveMaze(theGrid, theCells, xValue, yValue);
-
 
     else
     {
         drawGrid(theGrid);
-        cout << "done :)";
+        std::cout << "done :)";
     }
 }
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
