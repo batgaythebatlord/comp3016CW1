@@ -52,14 +52,14 @@ static void drawGrid(bool (&theGrid)[xDist][yDist][4])
     {
         for (int j = 0; j < sizeof(theGrid[0]) / sizeof(theGrid[0][0]); j++)
         {
-            std::cout << "||||" + draw(theGrid[i][j][0]) + "||||";
+            std::cout << "|||" + draw(theGrid[i][j][0]) + "|||";
         }
 
         std::cout << "\n";
 
         for (int j = 0; j < sizeof(theGrid[0]) / sizeof(theGrid[0][0]); j++)
         {
-            std::cout << draw(theGrid[i][j][1]) + "    " + draw(theGrid[i][j][3]);
+            std::cout << draw(theGrid[i][j][1]) + "   " + draw(theGrid[i][j][3]);
             // the numbers go ANTICLOCKWISE!!!!!!
         }
 
@@ -67,7 +67,7 @@ static void drawGrid(bool (&theGrid)[xDist][yDist][4])
 
         for (int j = 0; j < sizeof(theGrid[0]) / sizeof(theGrid[0][0]); j++)
         {
-            std::cout << "||||" + draw(theGrid[i][j][2]) + "||||";
+            std::cout << "|||" + draw(theGrid[i][j][2]) + "|||";
         }
 
         std::cout << "\n";
@@ -78,8 +78,8 @@ static void drawGrid(bool (&theGrid)[xDist][yDist][4])
 
 string draw(bool stuff)
 {
-    if (stuff) return "    ";
-    return "|!!|";
+    if (stuff) return "   ";
+    return "|||";
 }
 
 void startMaze(bool(&theGrid)[xDist][yDist][4], bool(&theCells)[xDist][yDist])
@@ -88,15 +88,15 @@ void startMaze(bool(&theGrid)[xDist][yDist][4], bool(&theCells)[xDist][yDist])
     int xValue = rand() % sizeof(theGrid[0]) / sizeof(theGrid[0][0]);
     theCells[yValue][xValue] = true;
 
-    std::cout << "started!\n";
-    std::cout << xValue << " " << yValue << "\n";
+    /*std::cout << "started!\n";
+    std::cout << xValue << " " << yValue << "\n";*/
 
     carveMaze(theGrid, theCells, xValue, yValue);
 }
 
 void carveMaze(bool(&theGrid)[xDist][yDist][4], bool(&theCells)[xDist][yDist], int xValue, int yValue)
 {
-    std::cout << "carve maze\n";
+    /*std::cout << "carve maze\n";*/
 
     bool wallcheck[4];
     int count = 0;
@@ -159,7 +159,7 @@ void carveMaze(bool(&theGrid)[xDist][yDist][4], bool(&theCells)[xDist][yDist], i
         }
 
         theCells[yValue][xValue] = true;
-        drawGrid(theGrid);
+        /*drawGrid(theGrid);*/
 
 
         carveMaze(theGrid, theCells, xValue, yValue);
@@ -184,7 +184,7 @@ bool isVisited(bool(&theCells)[xDist][yDist], int xValue, int yValue, int wall)
 
 static void huntPhase(bool(&theGrid)[xDist][yDist][4], bool(&theCells)[xDist][yDist])
 {
-    std::cout << "hunt phase\n";
+    /*std::cout << "hunt phase\n";*/
 
     int xValue = 0;
     int yValue = 0;
@@ -202,7 +202,7 @@ static void huntPhase(bool(&theGrid)[xDist][yDist][4], bool(&theCells)[xDist][yD
                     if (isVisited(theCells, xValue, yValue, wall) == false)
                     {
                         found = true;
-                        std::cout << xValue << " " << yValue << "\n";
+                        /*std::cout << xValue << " " << yValue << "\n";*/
                     }
                 }
             }
@@ -228,6 +228,8 @@ static void huntPhase(bool(&theGrid)[xDist][yDist][4], bool(&theCells)[xDist][yD
 
     else
     {
+        theGrid[0][0][1] = true;
+        theGrid[sizeof(theGrid) / sizeof(theGrid[0]) - 1][sizeof(theGrid[0]) / sizeof(theGrid[0][0]) - 1][3] = true;
         drawGrid(theGrid);
         std::cout << "done :)";
     }
