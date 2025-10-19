@@ -8,13 +8,13 @@
 using namespace std;
 
 //function declaration space
-static void drawGrid(bool(&theGrid)[xDist][yDist][4]);
+static void drawGrid(bool(&theGrid)[yDist][xDist][4]);
 string draw(bool stuff);
-void startMaze(bool(&theGrid)[xDist][yDist][4], bool(&theCells)[xDist][yDist]);
-void carveMaze(bool(&theGrid)[xDist][yDist][4], bool(&theCells)[xDist][yDist], int xValue, int yValue);
-static bool isEdge(bool(&theGrid)[xDist][yDist][4], int xValue, int yValue, int wall);
-static bool isVisited(bool(&theCells)[xDist][yDist], int xValue, int yValue, int wall);
-static void huntPhase(bool(&theGrid)[xDist][yDist][4], bool(&theCells)[xDist][yDist]);
+void startMaze(bool(&theGrid)[yDist][xDist][4], bool(&theCells)[yDist][xDist]);
+void carveMaze(bool(&theGrid)[yDist][xDist][4], bool(&theCells)[yDist][xDist], int xValue, int yValue);
+static bool isEdge(bool(&theGrid)[yDist][xDist][4], int xValue, int yValue, int wall);
+static bool isVisited(bool(&theCells)[yDist][xDist], int xValue, int yValue, int wall);
+static void huntPhase(bool(&theGrid)[yDist][xDist][4], bool(&theCells)[yDist][xDist]);
 
 int main()
 {
@@ -46,7 +46,7 @@ int main()
     //drawGrid(grid);
 }
 
-static void drawGrid(bool (&theGrid)[xDist][yDist][4])
+static void drawGrid(bool (&theGrid)[yDist][xDist][4])
 {
     for (int i = 0; i < sizeof(theGrid) / sizeof(theGrid[0]); i++)
     {
@@ -59,6 +59,7 @@ static void drawGrid(bool (&theGrid)[xDist][yDist][4])
 
         for (int j = 0; j < sizeof(theGrid[0]) / sizeof(theGrid[0][0]); j++)
         {
+            //std::cout << draw(theGrid[i][j][1]) << i << j << draw(theGrid[i][j][3]);
             std::cout << draw(theGrid[i][j][1]) + "   " + draw(theGrid[i][j][3]);
             // the numbers go ANTICLOCKWISE!!!!!!
         }
@@ -82,7 +83,7 @@ string draw(bool stuff)
     return "|||";
 }
 
-void startMaze(bool(&theGrid)[xDist][yDist][4], bool(&theCells)[xDist][yDist])
+void startMaze(bool(&theGrid)[yDist][xDist][4], bool(&theCells)[yDist][xDist])
 {
     int yValue = rand() % sizeof(theGrid) / sizeof(theGrid[0]);
     int xValue = rand() % sizeof(theGrid[0]) / sizeof(theGrid[0][0]);
@@ -94,7 +95,7 @@ void startMaze(bool(&theGrid)[xDist][yDist][4], bool(&theCells)[xDist][yDist])
     carveMaze(theGrid, theCells, xValue, yValue);
 }
 
-void carveMaze(bool(&theGrid)[xDist][yDist][4], bool(&theCells)[xDist][yDist], int xValue, int yValue)
+void carveMaze(bool(&theGrid)[yDist][xDist][4], bool(&theCells)[yDist][xDist], int xValue, int yValue)
 {
     /*std::cout << "carve maze\n";*/
 
@@ -165,7 +166,7 @@ void carveMaze(bool(&theGrid)[xDist][yDist][4], bool(&theCells)[xDist][yDist], i
         carveMaze(theGrid, theCells, xValue, yValue);
     }
 }
-bool isEdge(bool(&theGrid)[xDist][yDist][4], int xValue, int yValue, int wall)
+bool isEdge(bool(&theGrid)[yDist][xDist][4], int xValue, int yValue, int wall)
 {
     if (wall == 0 && yValue == 0) return true;
     if (wall == 1 && xValue == 0) return true;
@@ -173,7 +174,7 @@ bool isEdge(bool(&theGrid)[xDist][yDist][4], int xValue, int yValue, int wall)
     if (wall == 3 && xValue == sizeof(theGrid[0]) / sizeof(theGrid[0][0]) - 1) return true;
     return false;
 }
-bool isVisited(bool(&theCells)[xDist][yDist], int xValue, int yValue, int wall)
+bool isVisited(bool(&theCells)[yDist][xDist], int xValue, int yValue, int wall)
 {
     if (wall == 0) return theCells[yValue - 1][xValue];
     if (wall == 1) return theCells[yValue][xValue - 1];
@@ -182,7 +183,7 @@ bool isVisited(bool(&theCells)[xDist][yDist], int xValue, int yValue, int wall)
     return false;
 }
 
-static void huntPhase(bool(&theGrid)[xDist][yDist][4], bool(&theCells)[xDist][yDist])
+static void huntPhase(bool(&theGrid)[yDist][xDist][4], bool(&theCells)[yDist][xDist])
 {
     /*std::cout << "hunt phase\n";*/
 

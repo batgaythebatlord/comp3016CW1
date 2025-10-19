@@ -1,3 +1,3 @@
-constexpr int xDist = 16;
+constexpr int xDist = 22;
 constexpr int yDist = 16;
 
