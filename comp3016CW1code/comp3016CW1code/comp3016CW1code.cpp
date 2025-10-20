@@ -8,45 +8,224 @@
 using namespace std;
 
 //function declaration space
-static void drawGrid(bool(&theGrid)[yDist][xDist][4]);
+class Maze;
+static void drawGrid(bool(&theGrid)[yDist][xDist][4], bool(&theCells)[yDist][xDist]);
 string draw(bool stuff);
+string drawObject(bool object);
+void placeObjects(bool(&theCells)[yDist][xDist]);
 void startMaze(bool(&theGrid)[yDist][xDist][4], bool(&theCells)[yDist][xDist]);
 void carveMaze(bool(&theGrid)[yDist][xDist][4], bool(&theCells)[yDist][xDist], int xValue, int yValue);
 static bool isEdge(bool(&theGrid)[yDist][xDist][4], int xValue, int yValue, int wall);
 static bool isVisited(bool(&theCells)[yDist][xDist], int xValue, int yValue, int wall);
 static void huntPhase(bool(&theGrid)[yDist][xDist][4], bool(&theCells)[yDist][xDist]);
 
-int main()
+class Maze
 {
-    bool grid[yDist][xDist][4];
-    bool cellsVisited[yDist][xDist];
-
-    srand(time(NULL));
-
-    for (int i = 0; i < sizeof(grid) / sizeof(grid[0]); i++)
+public:
+    bool theGrid[yDist][xDist][4];
+    bool theCells[yDist][xDist];
+    Maze()
     {
-        for (int j = 0; j < sizeof(grid[0]) / sizeof(grid[0][0]); j++)
+        startMaze(theGrid, theCells);
+    }
+
+private:
+    void startMaze(bool(&theGrid)[yDist][xDist][4], bool(&theCells)[yDist][xDist])
+    {
+        for (int i = 0; i < sizeof(theGrid) / sizeof(theGrid[0]); i++)
         {
-            for (int k = 0; k < 4; k++)
+            for (int j = 0; j < sizeof(theGrid[0]) / sizeof(theGrid[0][0]); j++)
             {
-                grid[i][j][k] = false;
+                for (int k = 0; k < 4; k++)
+                {
+                    theGrid[i][j][k] = false;
+                }
             }
         }
+
+        for (int i = 0; i < sizeof(theCells) / sizeof(theCells[0]); i++)
+        {
+            for (int j = 0; j < sizeof(theCells[0]) / sizeof(theCells[0][0]); j++)
+            {
+                theCells[i][j] = false;
+            }
+        }
+
+        int yValue = rand() % sizeof(theGrid) / sizeof(theGrid[0]);
+        int xValue = rand() % sizeof(theGrid[0]) / sizeof(theGrid[0][0]);
+        theCells[yValue][xValue] = true;
+
+        /*std::cout << "started!\n";
+        std::cout << xValue << " " << yValue << "\n";*/
+
+        carveMaze(theGrid, theCells, xValue, yValue);
     }
 
-    for (int i = 0; i < sizeof(cellsVisited) / sizeof(cellsVisited[0]); i++)
+    void carveMaze(bool(&theGrid)[yDist][xDist][4], bool(&theCells)[yDist][xDist], int xValue, int yValue)
     {
-        for (int j = 0; j < sizeof(cellsVisited[0]) / sizeof(cellsVisited[0][0]); j++)
+        /*std::cout << "carve maze\n";*/
+
+        bool wallcheck[4];
+        int count = 0;
+
+
+        for (int wall = 0; wall < 4; wall++)
         {
-            cellsVisited[i][j] = false;
+            if (isEdge(theGrid, xValue, yValue, wall) == false)
+            {
+                if (isVisited(theCells, xValue, yValue, wall) == false)
+                {
+                    wallcheck[wall] = false;
+                    count++;
+                }
+                else
+                {
+                    wallcheck[wall] = true;
+                }
+            }
+            else
+            {
+                wallcheck[wall] = true;
+            }
+        }
+
+
+        if (count == 0)
+        {
+            huntPhase(theGrid, theCells);
+        }
+        else
+        {
+            int wallPicked = -1;
+            do
+            {
+                wallPicked = rand() % 4;
+            } while (wallcheck[wallPicked] == true);
+
+            theGrid[yValue][xValue][wallPicked] = true;
+            switch (wallPicked)
+            {
+            case 0:
+                yValue--;
+                theGrid[yValue][xValue][2] = true;
+                break;
+            case 1:
+                xValue--;
+                theGrid[yValue][xValue][3] = true;
+                break;
+            case 2:
+                yValue++;
+                theGrid[yValue][xValue][0] = true;
+                break;
+            case 3:
+                xValue++;
+                theGrid[yValue][xValue][1] = true;
+                break;
+            default:
+                break;
+            }
+
+            theCells[yValue][xValue] = true;
+            /*drawGrid(theGrid);*/
+
+
+            carveMaze(theGrid, theCells, xValue, yValue);
+        }
+    }
+    bool isEdge(bool(&theGrid)[yDist][xDist][4], int xValue, int yValue, int wall)
+    {
+        if (wall == 0 && yValue == 0) return true;
+        if (wall == 1 && xValue == 0) return true;
+        if (wall == 2 && yValue == sizeof(theGrid) / sizeof(theGrid[0]) - 1) return true;
+        if (wall == 3 && xValue == sizeof(theGrid[0]) / sizeof(theGrid[0][0]) - 1) return true;
+        return false;
+    }
+    bool isVisited(bool(&theCells)[yDist][xDist], int xValue, int yValue, int wall)
+    {
+        if (wall == 0) return theCells[yValue - 1][xValue];
+        if (wall == 1) return theCells[yValue][xValue - 1];
+        if (wall == 2) return theCells[yValue + 1][xValue];
+        if (wall == 3) return theCells[yValue][xValue + 1];
+        return false;
+    }
+
+    void huntPhase(bool(&theGrid)[yDist][xDist][4], bool(&theCells)[yDist][xDist])
+    {
+        /*std::cout << "hunt phase\n";*/
+
+        int xValue = 0;
+        int yValue = 0;
+        int count = 0;
+        bool found = false;
+
+        do
+        {
+            if (theCells[yValue][xValue] == true)
+            {
+                for (int wall = 0; wall < 4; wall++)
+                {
+                    if (isEdge(theGrid, xValue, yValue, wall) == false)
+                    {
+                        if (isVisited(theCells, xValue, yValue, wall) == false)
+                        {
+                            found = true;
+                            /*std::cout << xValue << " " << yValue << "\n";*/
+                        }
+                    }
+                }
+            }
+
+            if (found == false)
+            {
+                if (xValue != sizeof(theGrid[0]) / sizeof(theGrid[0][0]) - 1)
+                {
+                    xValue++;
+                }
+                else if (yValue != sizeof(theGrid) / sizeof(theGrid[0]) - 1)
+                {
+                    xValue = 0;
+                    yValue++;
+                }
+            }
+            count++;
+        } while (found == false && count <= sizeof(theGrid[0]) / sizeof(theGrid[0][0]) * sizeof(theGrid) / sizeof(theGrid[0]));
+
+
+        if (found) carveMaze(theGrid, theCells, xValue, yValue);
+
+        else
+        {
+            theGrid[0][0][1] = true;
+            theGrid[sizeof(theGrid) / sizeof(theGrid[0]) - 1][sizeof(theGrid[0]) / sizeof(theGrid[0][0]) - 1][3] = true;
+            placeObjects(theCells);
+            drawGrid(theGrid, theCells);
         }
     }
 
-    startMaze(grid, cellsVisited);
-    //drawGrid(grid);
+    void placeObjects(bool(&theCells)[yDist][xDist])
+    {
+        int count = 0;
+        do
+        {
+            int yValue = rand() % sizeof(theCells) / sizeof(theCells[0]);
+            int xValue = rand() % sizeof(theCells[0]) / sizeof(theCells[0][0]);
+            if (theCells[yValue][xValue] == true)
+            {
+                theCells[yValue][xValue] = false;
+                count++;
+            }
+        } while (count <= 15);
+    }
+};
+
+int main()
+{
+    srand(time(NULL));
+    
+    Maze level1;
 }
 
-static void drawGrid(bool (&theGrid)[yDist][xDist][4])
+static void drawGrid(bool (&theGrid)[yDist][xDist][4], bool(&theCells)[yDist][xDist])
 {
     for (int i = 0; i < sizeof(theGrid) / sizeof(theGrid[0]); i++)
     {
@@ -60,7 +239,7 @@ static void drawGrid(bool (&theGrid)[yDist][xDist][4])
         for (int j = 0; j < sizeof(theGrid[0]) / sizeof(theGrid[0][0]); j++)
         {
             //std::cout << draw(theGrid[i][j][1]) << i << j << draw(theGrid[i][j][3]);
-            std::cout << draw(theGrid[i][j][1]) + "   " + draw(theGrid[i][j][3]);
+            std::cout << draw(theGrid[i][j][1]) + drawObject(theCells[i][j]) + draw(theGrid[i][j][3]);
             // the numbers go ANTICLOCKWISE!!!!!!
         }
 
@@ -83,158 +262,13 @@ string draw(bool stuff)
     return "|||";
 }
 
-void startMaze(bool(&theGrid)[yDist][xDist][4], bool(&theCells)[yDist][xDist])
+string drawObject(bool object)
 {
-    int yValue = rand() % sizeof(theGrid) / sizeof(theGrid[0]);
-    int xValue = rand() % sizeof(theGrid[0]) / sizeof(theGrid[0][0]);
-    theCells[yValue][xValue] = true;
-
-    /*std::cout << "started!\n";
-    std::cout << xValue << " " << yValue << "\n";*/
-
-    carveMaze(theGrid, theCells, xValue, yValue);
+    if (object) return "   ";
+    return " 0 ";
 }
 
-void carveMaze(bool(&theGrid)[yDist][xDist][4], bool(&theCells)[yDist][xDist], int xValue, int yValue)
-{
-    /*std::cout << "carve maze\n";*/
 
-    bool wallcheck[4];
-    int count = 0;
-
-
-    for (int wall = 0; wall < 4; wall++)
-    {
-        if (isEdge(theGrid, xValue, yValue, wall) == false)
-        {
-            if (isVisited(theCells, xValue, yValue, wall) == false)
-            {
-                wallcheck[wall] = false;
-                count++;
-            }
-            else
-            {
-                wallcheck[wall] = true;
-            }
-        }
-        else
-        {
-            wallcheck[wall] = true;
-        }
-    }
-
-
-    if (count == 0)
-    {
-        huntPhase(theGrid, theCells);
-    }
-    else
-    {
-        int wallPicked = -1;
-        do
-        {
-            wallPicked = rand() % 4;
-        } while (wallcheck[wallPicked] == true);
-
-        theGrid[yValue][xValue][wallPicked] = true;
-        switch (wallPicked)
-        {
-        case 0:
-            yValue--;
-            theGrid[yValue][xValue][2] = true;
-            break;
-        case 1:
-            xValue--;
-            theGrid[yValue][xValue][3] = true;
-            break;
-        case 2:
-            yValue++;
-            theGrid[yValue][xValue][0] = true;
-            break;
-        case 3:
-            xValue++;
-            theGrid[yValue][xValue][1] = true;
-            break;
-        default:
-            break;
-        }
-
-        theCells[yValue][xValue] = true;
-        /*drawGrid(theGrid);*/
-
-
-        carveMaze(theGrid, theCells, xValue, yValue);
-    }
-}
-bool isEdge(bool(&theGrid)[yDist][xDist][4], int xValue, int yValue, int wall)
-{
-    if (wall == 0 && yValue == 0) return true;
-    if (wall == 1 && xValue == 0) return true;
-    if (wall == 2 && yValue == sizeof(theGrid) / sizeof(theGrid[0]) - 1) return true;
-    if (wall == 3 && xValue == sizeof(theGrid[0]) / sizeof(theGrid[0][0]) - 1) return true;
-    return false;
-}
-bool isVisited(bool(&theCells)[yDist][xDist], int xValue, int yValue, int wall)
-{
-    if (wall == 0) return theCells[yValue - 1][xValue];
-    if (wall == 1) return theCells[yValue][xValue - 1];
-    if (wall == 2) return theCells[yValue + 1][xValue];
-    if (wall == 3) return theCells[yValue][xValue + 1];
-    return false;
-}
-
-static void huntPhase(bool(&theGrid)[yDist][xDist][4], bool(&theCells)[yDist][xDist])
-{
-    /*std::cout << "hunt phase\n";*/
-
-    int xValue = 0;
-    int yValue = 0;
-    int count = 0;
-    bool found = false;
-
-    do
-    {
-        if (theCells[yValue][xValue] == true)
-        {
-            for (int wall = 0; wall < 4; wall++)
-            {
-                if (isEdge(theGrid, xValue, yValue, wall) == false)
-                {
-                    if (isVisited(theCells, xValue, yValue, wall) == false)
-                    {
-                        found = true;
-                        /*std::cout << xValue << " " << yValue << "\n";*/
-                    }
-                }
-            }
-        }
-
-        if (found == false)
-        {
-            if (xValue != sizeof(theGrid[0]) / sizeof(theGrid[0][0]) - 1)
-            {
-                xValue++;
-            }
-            else if (yValue != sizeof(theGrid) / sizeof(theGrid[0]) - 1)
-            {
-                xValue = 0;
-                yValue++;
-            }
-        }
-        count++;
-    } while (found == false && count <= sizeof(theGrid[0]) / sizeof(theGrid[0][0]) * sizeof(theGrid) / sizeof(theGrid[0]));
-
-    
-    if (found) carveMaze(theGrid, theCells, xValue, yValue);
-
-    else
-    {
-        theGrid[0][0][1] = true;
-        theGrid[sizeof(theGrid) / sizeof(theGrid[0]) - 1][sizeof(theGrid[0]) / sizeof(theGrid[0][0]) - 1][3] = true;
-        drawGrid(theGrid);
-        std::cout << "done :)";
-    }
-}
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
 // Debug program: F5 or Debug > Start Debugging menu
 
