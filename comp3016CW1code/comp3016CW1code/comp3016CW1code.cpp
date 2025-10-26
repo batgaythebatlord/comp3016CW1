@@ -9,7 +9,7 @@ using namespace std;
 
 //function declaration space
 class Maze;
-static void drawGrid(bool(&theGrid)[yDist][xDist][4], bool(&theCells)[yDist][xDist]);
+static void drawGrid(bool(&theGrid)[yDist][xDist][4], bool(&theCells)[yDist][xDist], float timer);
 string draw(bool stuff);
 string drawObject(bool object);
 void placeObjects(bool(&theCells)[yDist][xDist]);
@@ -198,7 +198,6 @@ private:
             theGrid[0][0][1] = true;
             theGrid[sizeof(theGrid) / sizeof(theGrid[0]) - 1][sizeof(theGrid[0]) / sizeof(theGrid[0][0]) - 1][3] = true;
             placeObjects(theCells);
-            drawGrid(theGrid, theCells);
         }
     }
 
@@ -221,11 +220,12 @@ private:
 int main()
 {
     srand(time(NULL));
-    
+    float timer = 00.00;
     Maze level1;
+    drawGrid(level1.theGrid, level1.theCells, timer);
 }
 
-static void drawGrid(bool (&theGrid)[yDist][xDist][4], bool(&theCells)[yDist][xDist])
+static void drawGrid(bool (&theGrid)[yDist][xDist][4], bool(&theCells)[yDist][xDist], float timer)
 {
     for (int i = 0; i < sizeof(theGrid) / sizeof(theGrid[0]); i++)
     {
@@ -253,7 +253,7 @@ static void drawGrid(bool (&theGrid)[yDist][xDist][4], bool(&theCells)[yDist][xD
         std::cout << "\n";
     }
 
-    std::cout << "\n";
+    std::cout << timer << "\n";
 }
 
 string draw(bool stuff)
