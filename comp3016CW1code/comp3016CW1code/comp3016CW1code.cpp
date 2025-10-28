@@ -2,22 +2,32 @@
 //░░░
 
 #include <iostream>
+#include <conio.h>
 #include <string>
 #include "mazeHeader.cpp"
+
+#define KEY_UP 72
+#define KEY_DOWN 80
+#define KEY_LEFT 75
+#define KEY_RIGHT 77
 
 using namespace std;
 
 //function declaration space
 class Maze;
-static void drawGrid(bool(&theGrid)[yDist][xDist][4], bool(&theCells)[yDist][xDist], float timer);
+bool finished(int yPos, int xPos, bool(&theCells)[yDist][xDist]);
+static void drawGrid(bool(&theGrid)[yDist][xDist][4], bool(&theCells)[yDist][xDist], float timer, int(&playerLoc)[2]);
 string draw(bool stuff);
 string drawObject(bool object);
-void placeObjects(bool(&theCells)[yDist][xDist]);
+void keyPressed(int(&playerLoc)[2], bool(&theGrid)[yDist][xDist][4]);
+
+//in the class
 void startMaze(bool(&theGrid)[yDist][xDist][4], bool(&theCells)[yDist][xDist]);
 void carveMaze(bool(&theGrid)[yDist][xDist][4], bool(&theCells)[yDist][xDist], int xValue, int yValue);
 static bool isEdge(bool(&theGrid)[yDist][xDist][4], int xValue, int yValue, int wall);
 static bool isVisited(bool(&theCells)[yDist][xDist], int xValue, int yValue, int wall);
 static void huntPhase(bool(&theGrid)[yDist][xDist][4], bool(&theCells)[yDist][xDist]);
+void placeObjects(bool(&theCells)[yDist][xDist]);
 
 class Maze
 {
@@ -221,11 +231,47 @@ int main()
 {
     srand(time(NULL));
     float timer = 00.00;
+    int playerPos[2];
+    playerPos[0] = 0;
+    playerPos[1] = 0;
+    int yPos;
+    int xPos;
+
     Maze level1;
-    drawGrid(level1.theGrid, level1.theCells, timer);
+    do // make while loop that checks if at max / max and also if all things collected
+    {
+        drawGrid(level1.theGrid, level1.theCells, timer, playerPos);
+        keyPressed(playerPos, level1.theGrid);
+        yPos = playerPos[0];
+        xPos = playerPos[1];
+    } while (!finished(yPos, xPos, level1.theCells));
+    drawGrid(level1.theGrid, level1.theCells, timer, playerPos);
 }
 
-static void drawGrid(bool (&theGrid)[yDist][xDist][4], bool(&theCells)[yDist][xDist], float timer)
+bool finished(int yPos, int xPos, bool(&theCells)[yDist][xDist])
+{
+    bool areWeFinsihed = false;
+
+    if (yPos >= yDist && xPos >= xDist)
+    {
+        areWeFinsihed = true;
+    }
+
+    for (int i = 0; i < sizeof(theCells) / sizeof(theCells[0]); i++)
+    {
+        for (int j = 0; j < sizeof(theCells[0]) / sizeof(theCells[0][0]); j++)
+        {
+            if (theCells[i][j] == false)
+            {
+                areWeFinsihed = false;
+            }
+        }
+    }
+
+    return areWeFinsihed;
+}
+
+static void drawGrid(bool (&theGrid)[yDist][xDist][4], bool(&theCells)[yDist][xDist], float timer, int(&playerLoc)[2])
 {
     for (int i = 0; i < sizeof(theGrid) / sizeof(theGrid[0]); i++)
     {
@@ -239,7 +285,15 @@ static void drawGrid(bool (&theGrid)[yDist][xDist][4], bool(&theCells)[yDist][xD
         for (int j = 0; j < sizeof(theGrid[0]) / sizeof(theGrid[0][0]); j++)
         {
             //std::cout << draw(theGrid[i][j][1]) << i << j << draw(theGrid[i][j][3]);
-            std::cout << draw(theGrid[i][j][1]) + drawObject(theCells[i][j]) + draw(theGrid[i][j][3]);
+            if (i == playerLoc[0] && j == playerLoc[1])
+            {
+                std::cout << draw(theGrid[i][j][1]) + " + " + draw(theGrid[i][j][3]);
+                theCells[i][j] = true;
+            }
+            else
+            {
+                std::cout << draw(theGrid[i][j][1]) + drawObject(theCells[i][j]) + draw(theGrid[i][j][3]);
+            }
             // the numbers go ANTICLOCKWISE!!!!!!
         }
 
@@ -268,6 +322,58 @@ string drawObject(bool object)
     return " 0 ";
 }
 
+void keyPressed(int(&playerLoc)[2], bool(&theGrid)[yDist][xDist][4])
+{
+    int c = 0;
+    bool pressed = false;
+
+    int yPos = playerLoc[0];
+    int xPos = playerLoc[1];
+
+
+    while (!pressed)
+    {
+        c = 0;
+
+        switch ((c = _getch())) {
+        case KEY_UP:
+            //cout << endl << "Up" << endl;//key up
+            if (yPos != 0 && theGrid[yPos][xPos][0] == true) //make a whole can it move method to check all this. will probably need to pass the grid into here too. do that later
+            {
+                playerLoc[0]--;
+                pressed = true;
+            }
+            break;
+        case KEY_DOWN:
+            //cout << endl << "Down" << endl;   // key down
+            if (yPos != yDist && theGrid[yPos][xPos][2] == true)
+            {
+                playerLoc[0]++;
+                pressed = true;
+            }
+            break;
+        case KEY_LEFT:
+            //cout << endl << "Left" << endl;  // key left
+            if (xPos != 0 && theGrid[yPos][xPos][1] == true)
+            {
+                playerLoc[1]--;
+                pressed = true;
+            }
+            break;
+        case KEY_RIGHT:
+            //cout << endl << "Right" << endl;  // key right
+            if (xPos != xDist && theGrid[yPos][xPos][3] == true)
+            {
+                playerLoc[1]++;
+                pressed = true;
+            }
+            break;
+        default:
+            //cout << endl << "null" << endl;  // not arrow
+            break;
+        }
+    }
+}
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
 // Debug program: F5 or Debug > Start Debugging menu
