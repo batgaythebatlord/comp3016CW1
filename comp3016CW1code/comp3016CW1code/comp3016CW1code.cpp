@@ -15,7 +15,7 @@ using namespace std;
 
 //variables
 constexpr int xDist = 22;
-constexpr int yDist = 18;
+constexpr int yDist = 16;
 bool gameOver;
 
 //function declaration space
@@ -235,15 +235,14 @@ private:
 
 int main()
 {
-    //::SetConsoleDisplayMode(GetStdHandle(STD_OUTPUT_HANDLE), CONSOLE_FULLSCREEN_MODE, 0);
+    ::SetConsoleDisplayMode(GetStdHandle(STD_OUTPUT_HANDLE), CONSOLE_FULLSCREEN_MODE, 0);
     srand(time(NULL));
     float timer = 00.00;
     int playerPos[2];
     gameOver = false;
 
-    cin.clear();
-    fflush(stdin);
-    if (_kbhit)
+
+    if (_kbhit())
     {
         cout << "_kbhit";
     }
@@ -341,7 +340,7 @@ string drawObject(bool object)
 
 void keyPressed(int(&playerLoc)[2], bool(&theGrid)[yDist][xDist][4])
 {
-    if(_kbhit)
+    if(_kbhit())
     {
         int yPos = playerLoc[0];
         int xPos = playerLoc[1];
