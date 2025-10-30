@@ -15,13 +15,13 @@ using namespace std;
 
 //variables
 constexpr int xDist = 22;
-constexpr int yDist = 16;
+constexpr int yDist = 18;
 bool gameOver;
 
 //function declaration space
 class Maze;
 bool finished(int yPos, int xPos, bool(&theCells)[yDist][xDist]);
-static void drawGrid(bool(&theGrid)[yDist][xDist][4], bool(&theCells)[yDist][xDist], float timer, int(&playerLoc)[2]);
+static void drawGrid(bool(&theGrid)[yDist][xDist][4], bool(&theCells)[yDist][xDist], float timer, int(&playerLoc)[2], int prev);
 string draw(bool stuff);
 string drawObject(bool object);
 void keyPressed(int(&playerLoc)[2], bool(&theGrid)[yDist][xDist][4]);
@@ -237,7 +237,8 @@ int main()
 {
     ::SetConsoleDisplayMode(GetStdHandle(STD_OUTPUT_HANDLE), CONSOLE_FULLSCREEN_MODE, 0);
     srand(time(NULL));
-    float timer = 00.00;
+    float timer;
+    float prevTime = 00.00;
     int playerPos[2];
     gameOver = false;
 
@@ -247,20 +248,27 @@ int main()
         cout << "_kbhit";
     }
 
-    playerPos[0] = 0;
-    playerPos[1] = 0;
-    int yPos;
-    int xPos;
-    Maze level;
-    do
+    while (!gameOver)
     {
-        drawGrid(level.theGrid, level.theCells, timer, playerPos);
-        keyPressed(playerPos, level.theGrid);
-        yPos = playerPos[0];
-        xPos = playerPos[1];
-        Sleep(100);
-    } while (!finished(yPos, xPos, level.theCells));
-    drawGrid(level.theGrid, level.theCells, timer, playerPos);
+        timer = 00.00;
+        playerPos[0] = 0;
+        playerPos[1] = 0;
+        int yPos;
+        int xPos;
+        Maze level;
+        do
+        {
+            drawGrid(level.theGrid, level.theCells, timer, playerPos, prevTime);
+            keyPressed(playerPos, level.theGrid);
+            yPos = playerPos[0];
+            xPos = playerPos[1];
+            Sleep(150);
+            timer += 0.15;
+        } while (!finished(yPos, xPos, level.theCells));
+        drawGrid(level.theGrid, level.theCells, timer, playerPos, prevTime);
+
+        prevTime = timer;
+    }
 }
 
 bool finished(int yPos, int xPos, bool(&theCells)[yDist][xDist])
@@ -272,7 +280,7 @@ bool finished(int yPos, int xPos, bool(&theCells)[yDist][xDist])
         areWeFinsihed = true;
     }
 
-    for (int i = 0; i < sizeof(theCells) / sizeof(theCells[0]); i++)
+    /*for (int i = 0; i < sizeof(theCells) / sizeof(theCells[0]); i++)
     {
         for (int j = 0; j < sizeof(theCells[0]) / sizeof(theCells[0][0]); j++)
         {
@@ -281,13 +289,20 @@ bool finished(int yPos, int xPos, bool(&theCells)[yDist][xDist])
                 areWeFinsihed = false;
             }
         }
+    }*/
+
+    if (gameOver)
+    {
+        areWeFinsihed = true;
     }
 
     return areWeFinsihed;
 }
 
-static void drawGrid(bool (&theGrid)[yDist][xDist][4], bool(&theCells)[yDist][xDist], float timer, int(&playerLoc)[2])
+static void drawGrid(bool (&theGrid)[yDist][xDist][4], bool(&theCells)[yDist][xDist], float timer, int(&playerLoc)[2], float prev)
 {
+    std::cout << "\n";
+
     for (int i = 0; i < sizeof(theGrid) / sizeof(theGrid[0]); i++)
     {
         std::cout << "\n";
@@ -323,7 +338,7 @@ static void drawGrid(bool (&theGrid)[yDist][xDist][4], bool(&theCells)[yDist][xD
         
     }
 
-    std::cout << "    " << timer << "\n";
+    std::cout << "  " << timer << "  " << prev;
 }
 
 string draw(bool stuff)
@@ -374,6 +389,8 @@ void keyPressed(int(&playerLoc)[2], bool(&theGrid)[yDist][xDist][4])
                 playerLoc[1]++;
             }
             break;
+        case 'x':
+            gameOver = true;
         default:
             break;
         }
