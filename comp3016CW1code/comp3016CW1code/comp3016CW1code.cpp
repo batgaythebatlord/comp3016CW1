@@ -337,7 +337,6 @@ static void drawGrid(bool (&theGrid)[yDist][xDist][4], bool(&theCells)[yDist][xD
 
         for (int j = 0; j < sizeof(theGrid[0]) / sizeof(theGrid[0][0]); j++)
         {
-            //std::cout << draw(theGrid[i][j][1]) << i << j << draw(theGrid[i][j][3]);
             if (i == playerLoc[0] && j == playerLoc[1])
             {
                 std::cout << draw(theGrid[i][j][1]) + " + " + draw(theGrid[i][j][3]);
@@ -388,28 +387,24 @@ void keyPressed(int(&playerLoc)[2], bool(&theGrid)[yDist][xDist][4])
 
         switch (_getch()) {
         case KEY_UP:
-            //cout << endl << "Up" << endl;//key up
             if (yPos != 0 && theGrid[yPos][xPos][0] == true)
             {
                 playerLoc[0]--;
             }
             break;
         case KEY_DOWN:
-            //cout << endl << "Down" << endl;   // key down
             if (yPos != yDist && theGrid[yPos][xPos][2] == true)
             {
                 playerLoc[0]++;
             }
             break;
         case KEY_LEFT:
-            //cout << endl << "Left" << endl;  // key left
             if (xPos != 0 && theGrid[yPos][xPos][1] == true)
             {
                 playerLoc[1]--;
             }
             break;
         case KEY_RIGHT:
-            //cout << endl << "Right" << endl;  // key right
             if (xPos != xDist && theGrid[yPos][xPos][3] == true)
             {
                 playerLoc[1]++;
