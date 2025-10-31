@@ -20,8 +20,9 @@ bool gameOver;
 
 //function declaration space
 class Maze;
+void start();
 bool finished(int yPos, int xPos, bool(&theCells)[yDist][xDist]);
-static void drawGrid(bool(&theGrid)[yDist][xDist][4], bool(&theCells)[yDist][xDist], float timer, int(&playerLoc)[2], int prev);
+static void drawGrid(bool(&theGrid)[yDist][xDist][4], bool(&theCells)[yDist][xDist], double timer, int(&playerLoc)[2], double prev);
 string draw(bool stuff);
 string drawObject(bool object);
 void keyPressed(int(&playerLoc)[2], bool(&theGrid)[yDist][xDist][4]);
@@ -229,24 +230,19 @@ private:
                 theCells[yValue][xValue] = false;
                 count++;
             }
-        } while (count <= 15);
+        } while (count <= 10);
     }
 };
 
 int main()
 {
     ::SetConsoleDisplayMode(GetStdHandle(STD_OUTPUT_HANDLE), CONSOLE_FULLSCREEN_MODE, 0);
-    srand(time(NULL));
-    float timer;
-    float prevTime = 00.00;
-    int playerPos[2];
     gameOver = false;
-
-
-    if (_kbhit())
-    {
-        cout << "_kbhit";
-    }
+    start();
+    srand(time(NULL));
+    double timer;
+    double prevTime = 10000.00;
+    int playerPos[2];
 
     while (!gameOver)
     {
@@ -264,10 +260,36 @@ int main()
             xPos = playerPos[1];
             Sleep(150);
             timer += 0.15;
+            if (timer > prevTime)
+            {
+                gameOver = true;
+            }
         } while (!finished(yPos, xPos, level.theCells));
         drawGrid(level.theGrid, level.theCells, timer, playerPos, prevTime);
 
         prevTime = timer;
+    }
+}
+
+void start()
+{
+    cout << "___  ___                _____                      _\n";
+    cout << "|  \\/  |               |  __ \\                    | |\n";
+    cout << "| .  . | __ _ _______  | |  \\/ __ _ _ __ ___   ___| |\n";
+    cout << "| |\\/| |/ _` |_  / _ \\ | | __ / _` | '_ ` _ \\ / _ \\ |\n";
+    cout << "| |  | | (_| |/ /  __/ | |_\\ \\ (_| | | | | | |  __/_|\n";
+    cout << "\\_|  |_/\\__,_/___\\___| \\_____/\\__,_|_| |_| |_|\\___(_)\n";
+    cout << "Explore the maze with the arrow keys and collect all the objects! Once you've done it once, you get a new maze and you gotta beat your previous time, or it's game over!\n\n";
+
+    cout << "Press [g] to start\n";
+    cout << "Press [x] to close the game at any time";
+
+    switch (_getch()) {
+    case 'g':
+        break;
+    case 'x':
+        gameOver = true;
+        break;
     }
 }
 
@@ -280,7 +302,7 @@ bool finished(int yPos, int xPos, bool(&theCells)[yDist][xDist])
         areWeFinsihed = true;
     }
 
-    /*for (int i = 0; i < sizeof(theCells) / sizeof(theCells[0]); i++)
+    for (int i = 0; i < sizeof(theCells) / sizeof(theCells[0]); i++)
     {
         for (int j = 0; j < sizeof(theCells[0]) / sizeof(theCells[0][0]); j++)
         {
@@ -289,7 +311,7 @@ bool finished(int yPos, int xPos, bool(&theCells)[yDist][xDist])
                 areWeFinsihed = false;
             }
         }
-    }*/
+    }
 
     if (gameOver)
     {
@@ -299,7 +321,7 @@ bool finished(int yPos, int xPos, bool(&theCells)[yDist][xDist])
     return areWeFinsihed;
 }
 
-static void drawGrid(bool (&theGrid)[yDist][xDist][4], bool(&theCells)[yDist][xDist], float timer, int(&playerLoc)[2], float prev)
+static void drawGrid(bool (&theGrid)[yDist][xDist][4], bool(&theCells)[yDist][xDist], double timer, int(&playerLoc)[2], double prev)
 {
     std::cout << "\n";
 
@@ -338,7 +360,11 @@ static void drawGrid(bool (&theGrid)[yDist][xDist][4], bool(&theCells)[yDist][xD
         
     }
 
-    std::cout << "  " << timer << "  " << prev;
+    std::cout << " " << timer;
+    if (prev != 10000.00)
+    {
+        std::cout << "  " << prev;
+    }
 }
 
 string draw(bool stuff)
